@@ -20,6 +20,20 @@ const getRelativeSVGPoints = (e, svgElement) => {
   return hoverCoordinates;
 };
 
+const TableAction = {
+  ADD_ROW: 'addRow',
+  ADD_COL: 'addCol',
+};
+
+const getTableAction = (mode, editEntity, editAction) => {
+  if (mode === 'edit' && editEntity === 'row' && editAction === 'split') {
+    return TableAction.ADD_ROW;
+  }
+  if (mode === 'edit' && editEntity === 'column' && editAction === 'split') {
+    return TableAction.ADD_COL;
+  }
+};
+
 class App extends Component {
 
   constructor(props) {
@@ -43,6 +57,27 @@ class App extends Component {
     this.selectSplitAxis = this.selectSplitAxis.bind(this);
     this.onMouseDraw = this.onMouseDraw.bind(this);
     this.createNextTable = this.createNextTable.bind(this);
+    this.drawTableRow = this.drawTableRow.bind(this);
+    this.drawTableColumn = this.drawTableColumn.bind(this);
+  }
+
+  drawTableColumn({ e, index, nextData }) {
+    console.log('drawTableColumn', e, index, nextData);
+    e.stopPropagation();
+  }
+
+  drawTableRow({ e, index, nextData }) {
+    e.stopPropagation();
+    const cords = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY };
+    const newRows = splitOrAddRow({ cords, nextData, tableRows: this.state.tableData.tableRows });
+    console.log('newRows: ', newRows, this.state.tableData, index);
+    this.setState({
+      tableData: {
+        ...this.state.tableData,
+        tableRows: [...this.state.tableData.tableRows, ...newRows],
+      },
+    });
+    // this.setState({ tableData: { ...tableData, tableRows: [...newRows] } });
   }
 
   handleMouseMove(e, item) {
@@ -98,41 +133,24 @@ class App extends Component {
     }
   }
 
-  handleClick(e, item) {
-    const { mode, editAction } = this.state;
-    if (mode !== 'view') {
-      e.stopPropagation();
-      const cords = {
-        x: e.nativeEvent.offsetX,
-        y: e.nativeEvent.offsetY,
-      };
-      const newRows = splitOrAddRow({ cords, item, tableRows: this.state.tableData.tableRows });
-      console.log('newRows: ', newRows);
-      this.setState({ tableData: {
-          ...tableData,
-          tableRows: [ ...newRows ],
-        }});
-//      console.log('item ', item.id, ' clicked of type: ', item.type, ' for action: ', this.state.editAction);
-//      if (editAction === 'split' && item.type === 'col') {
-//        console.log('event: ', e.target);
-//        console.log('item: ', item);
-//      } else {
-//        const { selectedItems } = this.state;
-//        this.setState({
-//          selectedItems: selectedItems.has(item.id) ?
-//            (this.state.selectedItems.delete(item.id) && this.state.selectedItems) : this.state.selectedItems.add(item.id),
-//        });
-//      }
-//    } else {
-//      // highlightTableData();
-//    }
+  handleClick({ e, index, nextData }) {
+    const { mode, editEntity, editAction } = this.state;
+    const actionType = getTableAction(mode, editEntity, editAction);
+
+    switch (actionType) {
+      case TableAction.ADD_ROW :
+        this.drawTableRow({ e, index, nextData });
+        break;
+      case TableAction.ADD_COL :
+        this.drawTableColumn({ e, index, nextData });
+        break;
+      default:
+        break;
     }
   }
 
   handleMouseOut(e, item) {
-    this.setState({
-      splitLineCoordinates: null,
-    });
+    this.setState({ splitLineCoordinates: null });
   }
 
   selectMode(e) {
@@ -173,7 +191,6 @@ class App extends Component {
       },
     });
   }
-
 
   createNextTable(e) {
     const getCoordinates = ({ x1, y1, x2, y2 }) => ({

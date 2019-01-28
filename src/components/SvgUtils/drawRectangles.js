@@ -1,7 +1,7 @@
-import React from 'react';
 import classNames from 'classnames';
-import { tableData } from './../SvgUtils/tableData';
+import React from 'react';
 import Rectangle from './../Rectangle/Rectangle';
+import { tableData } from './../SvgUtils/tableData';
 
 const drawRectangles = (
   rectangles, customClassName, selectedItems, onClick,
@@ -10,8 +10,8 @@ const drawRectangles = (
 ) => rectangles
   .map((data, index) => {
     const {
-      x, y, width, height, fill, stroke, className, id, type, merged, colSpan=1, rowSpan=1,
-      columnIndex, rowIndex
+      x, y, width, height, fill, stroke, className, id, type, merged, colSpan = 1, rowSpan = 1,
+      columnIndex, rowIndex,
     } = data;
     if (type === 'cell') {
       if (merged) {
@@ -38,9 +38,12 @@ const drawRectangles = (
               width={mergedWidth}
               height={mergedHeight}
               stroke={stroke}
-              fill={selectedItems.has(id) ? "blue" : "transparent"}
+              fill={selectedItems.has(id) ? 'blue' : 'transparent'}
               className={classNames(customClassName, className)}
-              onClick={e => { console.log('e: ',e); onClick(e, nextData);}}
+              onClick={e => {
+                console.log('eee: ', e, index);
+                onClick({ e, index, nextData });
+              }}
               onMouseMove={e => {onMouseMove(e, nextData);}}
               onMouseOut={e => {onMouseOut(e, nextData);}}
               selectedItems={selectedItems}
@@ -60,15 +63,17 @@ const drawRectangles = (
         width={width}
         height={height}
         stroke={stroke}
-        fill={selectedItems.has(id) ? "blue" : "transparent"}
+        fill={selectedItems.has(id) ? 'blue' : 'transparent'}
         className={classNames(customClassName, className)}
-        onClick={e => { console.log('e: ',e); onClick(e, data);}}
+        onClick={e => {
+          onClick({e, index, data});
+        }}
         onMouseMove={e => {onMouseMove(e, data);}}
         onMouseOut={e => {onMouseOut(e, data);}}
         selectedItems={selectedItems}
         fillOpacity={selectedItems.has(id) ? .2 : 1}
       />
-    )
+    );
   });
 
 export default drawRectangles;
