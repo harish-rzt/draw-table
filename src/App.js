@@ -4,6 +4,7 @@ import Header from './components/Header/Header';
 import drawRectangles from './components/SvgUtils/drawRectangles';
 import drawSplitLine from './components/SvgUtils/drawSplitLine';
 import { splitOrAddRow } from './components/SvgUtils/splitOrAddRow';
+import { mergeOrDeleteRow } from './components/SvgUtils/mergeOrDeleteRow';
 import {
   generateNewTable,
   getTableColCords,
@@ -23,6 +24,7 @@ const getRelativeSVGPoints = (e, svgElement) => {
 const TableAction = {
   ADD_ROW: 'addRow',
   ADD_COL: 'addCol',
+  DELETE_ROW: 'deleteRow',
 };
 
 const getTableAction = (mode, editEntity, editAction) => {
@@ -31,6 +33,9 @@ const getTableAction = (mode, editEntity, editAction) => {
   }
   if (mode === 'edit' && editEntity === 'column' && editAction === 'split') {
     return TableAction.ADD_COL;
+  }
+  if (mode === 'edit' && editEntity === 'row' && editAction === 'delete') {
+    return TableAction.DELETE_ROW;
   }
 };
 
@@ -42,7 +47,7 @@ class App extends Component {
       tableData: tableData,
       mode: 'edit', // view | edit,
       editEntity: 'row', // 'cell' | 'column' | 'row' | 'table'
-      editAction: 'split', // 'merge' | 'delete' | 'split'
+      editAction: 'delete', // 'merge' | 'delete' | 'split'
       selectedItems: new Set([]),
       splitLineCoordinates: null,
       splitAxis: 'vertical', // 'horizontal', 'vertical'
@@ -59,6 +64,24 @@ class App extends Component {
     this.createNextTable = this.createNextTable.bind(this);
     this.drawTableRow = this.drawTableRow.bind(this);
     this.drawTableColumn = this.drawTableColumn.bind(this);
+    this.deleteTableRow = this.deleteTableRow.bind(this);
+  }
+
+  deleteTableRow({ e, index, nextData }) {
+    e.stopPropagation();
+    if (this.state.tableData.tableRows.length > 1) {
+      const newRows = mergeOrDeleteRow({ tableRows: this.state.tableData.tableRows, index, data: nextData });
+      this.setState({
+        tableData: {
+          ...this.state.tableData,
+          tableRows: [...newRows],
+        },
+      });
+    } else {
+      // if the user trying to delete the only row
+      alert('invalid operation');
+    }
+
   }
 
   drawTableColumn({ e, index, nextData }) {
@@ -70,7 +93,7 @@ class App extends Component {
     e.stopPropagation();
     console.log('target: ', e.target);
     const cords = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY };
-    const newRows = splitOrAddRow({ cords, nextData, tableRows: this.state.tableData.tableRows, index });
+    const newRows = splitOrAddRow({ cords, tableRows: this.state.tableData.tableRows, index });
     this.setState({
       tableData: {
         ...this.state.tableData,
@@ -142,6 +165,9 @@ class App extends Component {
         break;
       case TableAction.ADD_COL :
         this.drawTableColumn({ e, index, nextData });
+        break;
+      case TableAction.DELETE_ROW :
+        this.deleteTableRow({ e, index, nextData });
         break;
       default:
         break;

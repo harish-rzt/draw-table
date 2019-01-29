@@ -1,9 +1,6 @@
 import { generateNewTableRow } from './../SvgUtils/tableData';
 
 export const splitOrAddRow = (data) => {
-
-  console.log({ data });
-
   const oldRowCords = { ...data.tableRows[data.index].coordinates };
 
   const oldHeight = data.cords.y - oldRowCords.y;
@@ -15,7 +12,7 @@ export const splitOrAddRow = (data) => {
     id: 'x1',
     isHeader: false,
     cords: { ...oldRowCords, height: oldHeight },
-    styles: { fill: '#000' },
+    styles: {},
   });
 
   const row2 = generateNewTableRow({
