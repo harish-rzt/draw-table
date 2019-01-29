@@ -307,10 +307,10 @@ export const generateNewTable = ({ x, y, width, height }) => ({
   ],
 });
 
-export const generateNewTableRow = ({ id = 'x', isHeader = false, cords, styles = {}, cells }) => ({
-  id: id,
-  isHeader: isHeader,
-  coordinates: { x: cords.x, y: cords.y, width: cords.width, height: cords.height },
+export const generateNewTableRow = ({ id = 'x', isHeader = false, cords : {x, y, width, height }, styles = {}, cells }) => ({
+  id,
+  isHeader,
+  coordinates: { x, y, width, height },
   styles: { stroke: 'green', fill: 'transparent', ...styles },
   type: 'row',
   cells: [
@@ -325,4 +325,11 @@ export const generateNewTableRow = ({ id = 'x', isHeader = false, cords, styles 
       type: 'cell',
     },
   ],
+});
+
+export const generateNewTableColumn = ({ id = 'x', cords : {x, y, width, height }, styles = {} }) => ({
+  id,
+  coordinates: { x, y, width, height },
+  styles: { stroke: 'blue', fill: 'transparent', ...styles },
+  type: 'col',
 });

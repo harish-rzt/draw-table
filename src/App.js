@@ -12,6 +12,8 @@ import {
   getTableRowCellCords,
   tableData,
 } from './components/SvgUtils/tableData';
+import { splitOrAddColumn } from './components/SvgUtils/splitOrAddColumn';
+import { mergeOrDeleteColumn } from './components/SvgUtils/mergeOrDeleteColumn';
 
 const getRelativeSVGPoints = (e, svgElement) => {
   let pt = svgElement.createSVGPoint();
@@ -25,6 +27,7 @@ const TableAction = {
   ADD_ROW: 'addRow',
   ADD_COL: 'addCol',
   DELETE_ROW: 'deleteRow',
+  DELETE_COLUMN: 'deleteColumn',
 };
 
 const getTableAction = (mode, editEntity, editAction) => {
@@ -36,6 +39,9 @@ const getTableAction = (mode, editEntity, editAction) => {
   }
   if (mode === 'edit' && editEntity === 'row' && editAction === 'delete') {
     return TableAction.DELETE_ROW;
+  }
+  if (mode === 'edit' && editEntity === 'column' && editAction === 'delete') {
+    return TableAction.DELETE_COLUMN;
   }
 };
 
@@ -84,9 +90,29 @@ class App extends Component {
 
   }
 
+  deleteTableColumn({ e, index, nextData }) {
+    e.stopPropagation();
+    if (this.state.tableData.tableCols.length > 1) {
+      const newCols = mergeOrDeleteColumn({ tableCols: this.state.tableData.tableCols, index, data: nextData });
+      this.setState({
+        tableData: {
+          ...this.state.tableData,
+          tableCols: [...newCols],
+        },
+      });
+    } else {
+      // if the user trying to delete the only column
+      alert('invalid operation');
+    }
+
+  }
+
   drawTableColumn({ e, index, nextData }) {
     console.log('drawTableColumn', e, index, nextData);
     e.stopPropagation();
+    const cords = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY };
+    const newCols = splitOrAddColumn({ cords, nextData, tableCols: this.state.tableData.tableCols, index });
+    this.setState({ tableData: { ...this.state.tableData, tableCols: [...newCols] } });
   }
 
   drawTableRow({ e, index, nextData }) {
@@ -164,6 +190,9 @@ class App extends Component {
         break;
       case TableAction.DELETE_ROW :
         this.deleteTableRow({ e, index, nextData });
+        break;
+      case TableAction.DELETE_COLUMN :
+        this.deleteTableColumn({ e, index, nextData });
         break;
       default:
         break;
