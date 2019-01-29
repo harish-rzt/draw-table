@@ -1,12 +1,15 @@
 import classNames from 'classnames';
 import React from 'react';
 import Rectangle from './../Rectangle/Rectangle';
-import { tableData } from './../SvgUtils/tableData';
 
 const drawRectangles = (
-  rectangles, customClassName, selectedItems, onClick,
+  rectangles,
+  customClassName,
+  selectedItems,
+  onClick,
   onMouseMove,
   onMouseOut,
+  tableData
 ) => rectangles
   .map((data, index) => {
     const {
