@@ -329,7 +329,41 @@ export const generateNewTableColumn = ({ id = 'x', cords : {x, y, width, height 
   cells
 });
 
-export const generateColumnCells = ({ cells, cords }) => {
-  const colWithCells = cells.map(cell => ({ ...cell, coordinates: { ...cell.coordinates, ...cords } }));
-  return colWithCells;
+
+export const getRowIndex = ({ cells, cords }) => (
+  cells.reduce((a, curr, index) => (
+    curr.coordinates.x < cords.x && curr.coordinates.x + curr.coordinates.width > cords.x) ? index : a, 0
+  )
+)
+
+export const generateColumnCells = (cols, cords, rows) => {
+  const rowIndex =  getRowIndex({ cells: rows[0].cells, cords });
+  const newRows = rows.map(row => {
+    let cell = row.cells[rowIndex];
+    const newCells = [
+      {
+        ...cell,
+        coordinates: {
+          x: cell.coordinates.x,
+          y: cell.coordinates.y,
+          width: cords.x - cell.coordinates.x,
+          height: cell.coordinates.height 
+        },
+      },
+      {
+        ...cell,
+        coordinates: {
+          x: cords.x,
+          y: cell.coordinates.y,
+          width: (cell.coordinates.x + cell.coordinates.width) - cords.x,
+          height: cell.coordinates.height 
+        },
+      }
+    ];
+    return {
+      ...row,
+      cells: row.cells.reduce((a, curr, index) =>  a.concat(index === rowIndex ? newCells: curr), [])
+    };
+  })
+  return newRows;
 };

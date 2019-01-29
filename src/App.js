@@ -93,11 +93,12 @@ class App extends Component {
   deleteTableColumn({ e, index, nextData }) {
     e.stopPropagation();
     if (this.state.tableData.tableCols.length > 1) {
-      const newCols = mergeOrDeleteColumn({ tableCols: this.state.tableData.tableCols, index, data: nextData });
+      const { cols, rows } = mergeOrDeleteColumn({ tableCols: this.state.tableData.tableCols, tableRows: this.state.tableData.tableRows, index, data: nextData });
       this.setState({
         tableData: {
           ...this.state.tableData,
-          tableCols: [...newCols],
+          tableCols: [...cols],
+          tableRows: rows
         },
       });
     } else {
@@ -111,8 +112,9 @@ class App extends Component {
     console.log('drawTableColumn', e, index, nextData);
     e.stopPropagation();
     const cords = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY };
-    const newCols = splitOrAddColumn({ cords, nextData, tableCols: this.state.tableData.tableCols, index });
-    this.setState({ tableData: { ...this.state.tableData, tableCols: [...newCols] } });
+    const { cols, rows } = splitOrAddColumn({ cords, nextData, tableCols: this.state.tableData.tableCols, tableRows: this.state.tableData.tableRows, index });
+    console.log('ROWS', rows);
+    this.setState({ tableData: { ...this.state.tableData, tableCols: [...cols], tableRows: rows },  });
   }
 
   drawTableRow({ e, index, nextData }) {
