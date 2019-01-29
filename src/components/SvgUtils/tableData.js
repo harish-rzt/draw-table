@@ -307,22 +307,17 @@ export const generateNewTable = ({ x, y, width, height }) => ({
   ],
 });
 
+export const generateRowCells = ({ cells, cords }) => {
+  const rowWithCells = cells.map(cell => ({ ...cell, coordinates: { ...cell.coordinates, ...cords } }));
+  return rowWithCells;
+};
+
 export const generateNewTableRow = ({ id = 'x', isHeader = false, cords, styles = {}, cells }) => ({
   id: id,
   isHeader: isHeader,
   coordinates: { x: cords.x, y: cords.y, width: cords.width, height: cords.height },
   styles: { stroke: 'green', fill: 'transparent', ...styles },
   type: 'row',
-  cells: [
-    {
-      id: 'cell11',
-      isNull: false,
-      colSpan: 1,
-      rowSpan: 1,
-      value: 'c-11',
-      coordinates: { x: 5, y: 5, width: 10, height: 10 },
-      styles: { stroke: 'yellow', fill: '#ccc' },
-      type: 'cell',
-    },
-  ],
+  cells,
 });
+
