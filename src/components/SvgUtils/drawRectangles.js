@@ -66,7 +66,7 @@ const drawRectangles = (
         fill={selectedItems.has(id) ? 'blue' : 'transparent'}
         className={classNames(customClassName, className)}
         onClick={e => {
-          onClick({e, index, data});
+          onClick({ e, index, data });
         }}
         onMouseMove={e => {onMouseMove(e, data);}}
         onMouseOut={e => {onMouseOut(e, data);}}

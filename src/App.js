@@ -67,16 +67,9 @@ class App extends Component {
   }
 
   drawTableRow({ e, index, nextData }) {
-    e.stopPropagation();
-    console.log('target: ', e.target);
     const cords = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY };
     const newRows = splitOrAddRow({ cords, nextData, tableRows: this.state.tableData.tableRows, index });
-    this.setState({
-      tableData: {
-        ...this.state.tableData,
-        tableRows: [...newRows],
-      },
-    }, () => console.log('newRows: ', newRows, this.state.tableData, index));
+    this.setState({ tableData: { ...this.state.tableData, tableRows: [...newRows] } });
   }
 
   handleMouseMove(e, item) {
@@ -138,6 +131,7 @@ class App extends Component {
 
     switch (actionType) {
       case TableAction.ADD_ROW :
+        e.stopPropagation();
         this.drawTableRow({ e, index, nextData });
         break;
       case TableAction.ADD_COL :
