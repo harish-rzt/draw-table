@@ -303,10 +303,8 @@ class App extends Component {
       this.handleClick,
       this.handleMouseMove,
       this.handleMouseOut,
+      this.state.tableData
     ));
-
-//    console.log('width: ', this.state.drawnTable.x2 - this.state.drawnTable.x1);
-//    console.log('height: ', this.state.drawnTable.y2 - this.state.drawnTable.y1);
 
     return (
       <div className="App">
