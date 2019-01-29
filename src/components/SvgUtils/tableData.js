@@ -307,29 +307,29 @@ export const generateNewTable = ({ x, y, width, height }) => ({
   ],
 });
 
-export const generateNewTableRow = ({ id = 'x', isHeader = false, cords : {x, y, width, height }, styles = {}, cells }) => ({
-  id,
-  isHeader,
-  coordinates: { x, y, width, height },
+export const generateRowCells = ({ cells, cords }) => {
+  const rowWithCells = cells.map(cell => ({ ...cell, coordinates: { ...cell.coordinates, ...cords } }));
+  return rowWithCells;
+};
+
+export const generateNewTableRow = ({ id = 'x', isHeader = false, cords, styles = {}, cells }) => ({
+  id: id,
+  isHeader: isHeader,
+  coordinates: { x: cords.x, y: cords.y, width: cords.width, height: cords.height },
   styles: { stroke: 'green', fill: 'transparent', ...styles },
   type: 'row',
-  cells: [
-    {
-      id: 'cell11',
-      isNull: false,
-      colSpan: 1,
-      rowSpan: 1,
-      value: 'c-11',
-      coordinates: { x: 5, y: 5, width: 10, height: 10 },
-      styles: { stroke: 'yellow', fill: '#ccc' },
-      type: 'cell',
-    },
-  ],
+  cells,
 });
 
-export const generateNewTableColumn = ({ id = 'x', cords : {x, y, width, height }, styles = {} }) => ({
+export const generateNewTableColumn = ({ id = 'x', cords : {x, y, width, height }, styles = {}, cells }) => ({
   id,
   coordinates: { x, y, width, height },
   styles: { stroke: 'blue', fill: 'transparent', ...styles },
   type: 'col',
+  cells
 });
+
+export const generateColumnCells = ({ cells, cords }) => {
+  const colWithCells = cells.map(cell => ({ ...cell, coordinates: { ...cell.coordinates, ...cords } }));
+  return colWithCells;
+};

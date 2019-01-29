@@ -3,8 +3,8 @@ import './App.css';
 import Header from './components/Header/Header';
 import drawRectangles from './components/SvgUtils/drawRectangles';
 import drawSplitLine from './components/SvgUtils/drawSplitLine';
-import { splitOrAddRow } from './components/SvgUtils/splitOrAddRow';
 import { mergeOrDeleteRow } from './components/SvgUtils/mergeOrDeleteRow';
+import { splitOrAddRow } from './components/SvgUtils/splitOrAddRow';
 import {
   generateNewTable,
   getTableColCords,
@@ -117,10 +117,10 @@ class App extends Component {
 
   drawTableRow({ e, index, nextData }) {
     e.stopPropagation();
-    console.log('target: ', e.target);
     const cords = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY };
     const newRows = splitOrAddRow({ cords, nextData, tableRows: this.state.tableData.tableRows, index });
-    this.setState({ tableData: { ...this.state.tableData, tableRows: [...newRows] } });
+    this.setState({ tableData: { ...this.state.tableData, tableRows: [...newRows] } },
+      () => console.log(this.state.tableData, newRows));
   }
 
   handleMouseMove(e, item) {
