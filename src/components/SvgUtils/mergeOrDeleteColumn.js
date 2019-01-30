@@ -1,4 +1,4 @@
-import { getRowIndex } from "./tableData";
+import { getRowIndex } from "./tableHelpers";
 
 export const mergeOrDeleteColumn = ({ tableCols, tableRows, index, data }) => {
   const rowIndex = getRowIndex({ cells: tableRows[0].cells, cords: {x: data.x, y: data.y }});

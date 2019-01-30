@@ -10,8 +10,9 @@ import {
   getTableColCords,
   getTableCords,
   getTableRowCellCords,
-  tableData,
-} from './components/SvgUtils/tableData';
+} from './components/SvgUtils/tableHelpers';
+import tableData from './data/tableData';
+
 import { splitOrAddColumn } from './components/SvgUtils/splitOrAddColumn';
 import { mergeOrDeleteColumn } from './components/SvgUtils/mergeOrDeleteColumn';
 
@@ -31,18 +32,20 @@ const TableAction = {
 };
 
 const getTableAction = (mode, editEntity, editAction) => {
-  if (mode === 'edit' && editEntity === 'row' && editAction === 'split') {
+  if(mode === 'edit'){
+  if (editEntity === 'row' && editAction === 'split') {
     return TableAction.ADD_ROW;
   }
-  if (mode === 'edit' && editEntity === 'column' && editAction === 'split') {
+  if (editEntity === 'column' && editAction === 'split') {
     return TableAction.ADD_COL;
   }
-  if (mode === 'edit' && editEntity === 'row' && editAction === 'delete') {
+  if (editEntity === 'row' && editAction === 'delete') {
     return TableAction.DELETE_ROW;
   }
-  if (mode === 'edit' && editEntity === 'column' && editAction === 'delete') {
+  if (editEntity === 'column' && editAction === 'delete') {
     return TableAction.DELETE_COLUMN;
   }
+}
 };
 
 class App extends Component {
@@ -58,6 +61,7 @@ class App extends Component {
       splitLineCoordinates: null,
       splitAxis: 'vertical', // 'horizontal', 'vertical'
       drawnTable: {},
+      mouseDown: false
     };
     this.handleClick = this.handleClick.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
@@ -109,11 +113,9 @@ class App extends Component {
   }
 
   drawTableColumn({ e, index, nextData }) {
-    console.log('drawTableColumn', e, index, nextData);
     e.stopPropagation();
     const cords = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY };
     const { cols, rows } = splitOrAddColumn({ cords, nextData, tableCols: this.state.tableData.tableCols, tableRows: this.state.tableData.tableRows, index });
-    console.log('ROWS', rows);
     this.setState({ tableData: { ...this.state.tableData, tableCols: [...cols], tableRows: rows },  });
   }
 
@@ -121,13 +123,12 @@ class App extends Component {
     e.stopPropagation();
     const cords = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY };
     const newRows = splitOrAddRow({ cords, nextData, tableRows: this.state.tableData.tableRows, index });
-    this.setState({ tableData: { ...this.state.tableData, tableRows: [...newRows] } },
-      () => console.log(this.state.tableData, newRows));
+    this.setState({ tableData: { ...this.state.tableData, tableRows: [...newRows] } });
   }
 
   handleMouseMove(e, item) {
 //    console.log('item ', item.id, ' hovered of type: ', item.type, ' for action: ', this.state.editAction, ' data: ', item);
-    const getLineCoordinates = (item, hoverCoordinates, axis) => {
+    const getLineCoordinates = (item, hoverCoordinates) => {
       const getLineCoordinatesByAxis = (item, hoverCoordinates, horizontalAxis) => {
         let itemWidth = item.width;
         let itemHeight = item.height;
@@ -181,20 +182,19 @@ class App extends Component {
   handleClick({ e, index, nextData }) {
     const { mode, editEntity, editAction } = this.state;
     const actionType = getTableAction(mode, editEntity, editAction);
-
+    const params = { e, index, nextData };
     switch (actionType) {
-      case TableAction.ADD_ROW :
-        e.stopPropagation();
-        this.drawTableRow({ e, index, nextData });
+      case TableAction.ADD_ROW:
+        this.drawTableRow(params);
         break;
-      case TableAction.ADD_COL :
-        this.drawTableColumn({ e, index, nextData });
+      case TableAction.ADD_COL:
+        this.drawTableColumn(params);
         break;
-      case TableAction.DELETE_ROW :
-        this.deleteTableRow({ e, index, nextData });
+      case TableAction.DELETE_ROW:
+        this.deleteTableRow(params);
         break;
-      case TableAction.DELETE_COLUMN :
-        this.deleteTableColumn({ e, index, nextData });
+      case TableAction.DELETE_COLUMN:
+        this.deleteTableColumn(params);
         break;
       default:
         break;
@@ -234,7 +234,6 @@ class App extends Component {
 
   onMouseDraw(e) {
     const p = getRelativeSVGPoints(e, this.tableDrawCanvasSvg);
-    console.log('mousemove p:', p);
     this.setState({
       drawnTable: {
         ...this.state.drawnTable,
@@ -338,19 +337,14 @@ class App extends Component {
               height="100%"
               style={{ background: 'white', cursor: 'crosshair' }}
               onMouseDown={(e) => {
-                const p = getRelativeSVGPoints(e, this.tableDrawCanvasSvg);
-                console.log({ p });
+                const { x, y } = getRelativeSVGPoints(e, this.tableDrawCanvasSvg);
                 this.setState({
-                  drawnTable: {
-                    x1: p.x,
-                    y1: p.y,
-                  },
+                  drawnTable: { x1: x, y1: y },
+                  mouseDown: true
                 });
-                this.tableDrawCanvasSvg.addEventListener('mousemove', this.onMouseDraw);
               }}
-              onMouseUp={() => {
-                this.tableDrawCanvasSvg.removeEventListener('mousemove', this.onMouseDraw);
-              }}
+              onMouseMove={this.state.mouseDown ? this.onMouseDraw : f => f }
+              onMouseUp={() => this.setState({ mouseDown: false })}
               // onMouseDown={() => {
               //   const nextTableIndex = this.state.drawnTables.count();
               //

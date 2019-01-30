@@ -1,4 +1,4 @@
-import { generateNewTableRow, generateRowCells } from './../SvgUtils/tableData';
+import { generateNewTableRow, generateRowCells } from './tableHelpers';
 
 export const splitOrAddRow = (data) => {
   const oldRowCords = { ...data.tableRows[data.index].coordinates };

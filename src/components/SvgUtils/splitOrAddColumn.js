@@ -1,4 +1,4 @@
-import { generateNewTableColumn, generateColumnCells } from './tableData';
+import { generateNewTableColumn, generateColumnCells } from './tableHelpers';
 
 export const splitOrAddColumn = (data) => {
   const oldColCords = { ...data.tableCols[data.index].coordinates };

@@ -1,4 +1,4 @@
-import { generateRowCells } from './tableData';
+import { generateRowCells } from './tableHelpers';
 
 export const mergeOrDeleteRow = ({ tableRows, index, data }) => {
   if(index === 0) {
